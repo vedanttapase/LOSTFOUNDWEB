@@ -39,42 +39,28 @@
         }
 
         .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            max-width: 1400px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 800;
+            font-size: 1.8rem; font-weight: 800;
             background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             cursor: pointer;
         }
 
         nav { display: flex; gap: 1rem; align-items: center; }
 
         .nav-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-light);
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
+            background: transparent; border: 1px solid var(--border);
+            color: var(--text-light); padding: 0.6rem 1.2rem;
+            border-radius: 50px; cursor: pointer; font-weight: 600; transition: 0.3s;
         }
 
         .nav-btn:hover { border-color: var(--accent); }
-        .nav-btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            box-shadow: var(--glow);
-        }
+        .nav-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: var(--glow); }
 
         .nav-user { color: var(--accent); font-weight: bold; margin-right: 10px; font-size: 0.9rem; }
 
@@ -85,45 +71,34 @@
         .hero h1 { font-family: 'Playfair Display', serif; font-size: 3.5rem; margin-bottom: 1rem; }
 
         .form-container, .auth-box {
-            max-width: 500px;
-            margin: 0 auto;
-            background: rgba(255,255,255,0.03);
-            padding: 2.5rem;
-            border-radius: 20px;
-            border: 1px solid var(--border);
+            max-width: 500px; margin: 0 auto;
+            background: rgba(255,255,255,0.03); padding: 2.5rem;
+            border-radius: 20px; border: 1px solid var(--border);
             backdrop-filter: blur(10px);
         }
 
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
         input, select, textarea {
-            width: 100%;
-            padding: 0.8rem;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: white;
-            font-family: inherit;
+            width: 100%; padding: 0.8rem;
+            background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+            border-radius: 10px; color: white; font-family: inherit;
         }
 
         .items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem; max-width: 1200px; margin: 0 auto;
         }
 
         .item-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: 0.3s;
-            cursor: pointer;
-            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.05); border-radius: 15px;
+            overflow: hidden; transition: 0.3s; cursor: pointer; border: 1px solid var(--border);
         }
         .item-card:hover { transform: translateY(-5px); border-color: var(--accent); }
-        .item-image { height: 200px; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); }
+        .item-image { 
+            height: 200px; background-size: cover; background-position: center; 
+            border-bottom: 1px solid var(--border); background-color: #222; 
+        }
         .item-content { padding: 1.5rem; }
 
         .modal { 
@@ -170,7 +145,7 @@
 
     <section id="auth">
         <div class="auth-box">
-            <h2 id="authTitle" style="margin-bottom: 1.5rem; font-family: 'Playfair Display';">Login</h2>
+            <h2 id="authTitle" style="margin-bottom: 1.5rem;">Login</h2>
             <form id="authForm">
                 <div class="form-group" id="nameGroup" style="display:none;">
                     <label>Full Name</label>
@@ -178,14 +153,14 @@
                 </div>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="authEmail" required placeholder="name@email.com">
+                    <input type="email" id="authEmail" required>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="authPass" required placeholder="••••••••">
+                    <input type="password" id="authPass" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Continue</button>
-                <p onclick="toggleAuthMode()" style="text-align:center; margin-top:1.5rem; cursor:pointer; color:var(--accent-light); font-size: 0.9rem;">
+                <p onclick="toggleAuthMode()" style="text-align:center; margin-top:1.5rem; cursor:pointer; color:var(--accent-light);">
                     Don't have an account? Sign Up
                 </p>
             </form>
@@ -194,7 +169,7 @@
 
     <section id="report">
         <div class="form-container">
-            <h2 style="margin-bottom: 1.5rem; font-family: 'Playfair Display';">Report Lost Item</h2>
+            <h2 style="margin-bottom: 1.5rem;">Report Lost Item</h2>
             <form id="reportForm">
                 <div class="form-group"><label>Item Name</label><input type="text" id="itemName" required></div>
                 <div class="form-group">
@@ -215,7 +190,7 @@
     </section>
 
     <section id="browse">
-        <h2 style="text-align: center; margin-bottom: 2.5rem; font-family: 'Playfair Display'; font-size: 2.5rem;">Recent Reports</h2>
+        <h2 style="text-align: center; margin-bottom: 2.5rem; font-size: 2.5rem;">Recent Reports</h2>
         <div id="itemsContainer" class="items-grid"></div>
     </section>
 
@@ -228,6 +203,7 @@
 
     <script>
         const API_URL = "https://lostfoundweb.onrender.com/api";
+        const BASE_HOST = "https://lostfoundweb.onrender.com"; // Needed for image reconstruction
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let isLoginMode = true;
 
@@ -281,18 +257,23 @@
             } catch (err) { alert("Error connecting to server."); }
         };
 
+        // IMAGE FIX FUNCTION
+        function formatImagePath(path) {
+            if (!path) return 'https://via.placeholder.com/300x200?text=No+Image';
+            // If the path is just a filename (no http), prepend the base URL
+            if (!path.startsWith('http')) {
+                return `${BASE_HOST}/uploads/${path}`;
+            }
+            // If it is http, upgrade it to https for security
+            return path.replace('http://', 'https://');
+        }
+
         async function loadItems() {
             try {
                 const res = await fetch(`${API_URL}/items`);
                 const items = await res.json();
                 document.getElementById('itemsContainer').innerHTML = items.map(item => {
-                    // FIX: Ensure image uses HTTPS
-                    let photoSrc = item.photo;
-                    if (photoSrc && photoSrc.startsWith('http://')) {
-                        photoSrc = photoSrc.replace('http://', 'https://');
-                    }
-                    const finalImg = photoSrc || 'https://via.placeholder.com/300x200?text=No+Image';
-                    
+                    const finalImg = formatImagePath(item.photo);
                     return `
                         <div class="item-card" onclick="openModal(${item.id})">
                             <div class="item-image" style="background-image: url('${finalImg}');"></div>
@@ -314,17 +295,12 @@
                 const item = items.find(i => i.id == id);
                 if(!item) return;
 
-                let photoSrc = item.photo;
-                if (photoSrc && photoSrc.startsWith('http://')) {
-                    photoSrc = photoSrc.replace('http://', 'https://');
-                }
-                const finalImg = photoSrc || 'https://via.placeholder.com/500x300?text=No+Image+Available';
-
+                const finalImg = formatImagePath(item.photo);
                 const isOwner = currentUser && item.userId == currentUser.userId;
 
                 document.getElementById('modalBody').innerHTML = `
                     <img src="${finalImg}" style="width:100%; border-radius:15px; margin-bottom:1.5rem; border: 1px solid var(--border);">
-                    <h2 style="font-family:'Playfair Display'; font-size:2rem; margin-bottom:0.5rem;">${item.name}</h2>
+                    <h2 style="font-size:2rem; margin-bottom:0.5rem;">${item.name}</h2>
                     <p style="color:var(--text-muted); margin-bottom:1.5rem;">${item.description || 'No description provided.'}</p>
                     
                     <div style="background:rgba(255,255,255,0.03); padding:1.2rem; border-radius:12px; border:1px solid var(--border);">
@@ -347,14 +323,9 @@
                 });
                 if(res.ok) {
                     alert("Status Updated: Item marked as Found.");
-                    closeModal();
-                    loadItems();
-                } else {
-                    alert("Action failed.");
-                }
-            } catch (err) {
-                alert("Error updating status.");
-            }
+                    closeModal(); loadItems();
+                } else { alert("Action failed."); }
+            } catch (err) { alert("Error updating status."); }
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
@@ -371,13 +342,15 @@
             const photo = document.getElementById('photoInput').files[0];
             if(photo) formData.append('photo', photo);
 
-            const res = await fetch(`${API_URL}/items`, {
-                method: 'POST',
-                headers: { 'Authorization': currentUser.token },
-                body: formData
-            });
-            if(res.ok) { alert("Reported successfully!"); showSection('browse'); }
-            else { alert("Failed to report item."); }
+            try {
+                const res = await fetch(`${API_URL}/items`, {
+                    method: 'POST',
+                    headers: { 'Authorization': currentUser.token },
+                    body: formData
+                });
+                if(res.ok) { alert("Reported successfully!"); showSection('browse'); }
+                else { alert("Failed to report item."); }
+            } catch (err) { alert("Upload failed. Server may be sleeping."); }
         };
 
         updateUI();
