@@ -82,6 +82,29 @@
         section { display: none; padding: 4rem 5%; min-height: 100vh; }
         section.active { display: block; animation: fadeIn 0.5s ease; }
 
+        .form-container, .auth-box {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.03);
+            padding: 2.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        input, select, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: white;
+            font-family: inherit;
+        }
+
+        /* --- GRID --- */
         .items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -102,7 +125,7 @@
         .item-image { height: 200px; background-size: cover; background-position: center; }
         .item-content { padding: 1.5rem; }
 
-        /* --- MODAL (THE FIX) --- */
+        /* --- MODAL --- */
         .modal { 
             display: none; 
             position: fixed; 
@@ -140,9 +163,9 @@
             <div class="logo" onclick="showSection('hero')">LostFind</div>
             <nav>
                 <span id="userNameDisplay" class="nav-user"></span>
-                <button class="nav-btn active" onclick="showSection('hero')">Home</button>
-                <button class="nav-btn" onclick="showSection('browse')">Browse</button>
-                <button class="nav-btn" onclick="handleReportClick()">Report Item</button>
+                <button class="nav-btn active" id="btn-hero" onclick="showSection('hero')">Home</button>
+                <button class="nav-btn" id="btn-browse" onclick="showSection('browse')">Browse</button>
+                <button class="nav-btn" id="btn-report" onclick="handleReportClick()">Report Item</button>
                 <button class="nav-btn" id="authNavBtn" onclick="showSection('auth')">Login</button>
             </nav>
         </div>
@@ -153,6 +176,68 @@
             <h1 style="font-family: 'Playfair Display'; font-size: 3.5rem;">Find What You've Lost</h1>
             <p style="color: var(--text-muted); margin: 2rem auto; max-width: 600px;">A secure community portal to reunite you with your belongings.</p>
             <button class="btn btn-primary" style="width: 250px;" onclick="showSection('browse')">Start Browsing</button>
+        </div>
+    </section>
+
+    <section id="auth">
+        <div class="auth-box">
+            <h2 id="authTitle" style="margin-bottom: 1.5rem; font-family: 'Playfair Display';">Login</h2>
+            <form id="authForm">
+                <div class="form-group" id="nameGroup" style="display:none;">
+                    <label>Full Name</label>
+                    <input type="text" id="regName" placeholder="Vedant Tapase">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="authEmail" required placeholder="name@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="authPass" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary">Continue</button>
+                <p onclick="toggleAuthMode()" style="text-align:center; margin-top:1.5rem; cursor:pointer; color:var(--accent-light); font-size: 0.9rem;">
+                    Don't have an account? Sign Up
+                </p>
+            </form>
+        </div>
+    </section>
+
+    <section id="report">
+        <div class="form-container">
+            <h2 style="margin-bottom: 1.5rem; font-family: 'Playfair Display';">Report Lost Item</h2>
+            <form id="reportForm">
+                <div class="form-group">
+                    <label>Item Name</label>
+                    <input type="text" id="itemName" placeholder="e.g. iPhone 13 Pro" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="itemType">
+                        <option value="Electronics">Electronics</option>
+                        <option value="Personal">Personal/Keys</option>
+                        <option value="Pets">Pets</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="itemDescription" placeholder="Color, distinguishing marks, etc." rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Location Found</label>
+                    <input type="text" id="itemLocation" placeholder="e.g. Central Library" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Phone</label>
+                    <input type="tel" id="contactPhone" placeholder="Your mobile number" required>
+                </div>
+                <div class="form-group">
+                    <label>Item Photo</label>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Report</button>
+            </form>
         </div>
     </section>
 
@@ -171,25 +256,55 @@
     <script>
         const API_URL = 'https://lostfoundweb.onrender.com/api';
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
-        let allItems = []; // Global storage for items
+        let allItems = [];
+        let isLoginMode = true;
 
         window.onload = () => {
             updateUI();
             loadItems();
         };
 
+        // --- NAVIGATION ---
         function showSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            const target = document.getElementById(id);
+            if(target) target.classList.add('active');
+            
+            const navBtn = document.getElementById('btn-' + id);
+            if(navBtn) navBtn.classList.add('active');
+
             if(id === 'browse') loadItems();
         }
 
+        function handleReportClick() {
+            if (!currentUser) { 
+                alert("Please login to report an item."); 
+                showSection('auth'); 
+            } else { 
+                showSection('report'); 
+            }
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? "Login" : "Sign Up";
+            document.getElementById('nameGroup').style.display = isLoginMode ? "none" : "block";
+        }
+
+        // --- CORE FUNCTIONALITY ---
         async function loadItems() {
             try {
                 const res = await fetch(`${API_URL}/items`);
                 allItems = await res.json();
                 const container = document.getElementById('itemsContainer');
                 
+                if (allItems.length === 0) {
+                    container.innerHTML = `<p style="text-align:center; width:100%; color:var(--text-muted);">No items reported yet.</p>`;
+                    return;
+                }
+
                 container.innerHTML = allItems.map(item => `
                     <div class="item-card" onclick="openModal('${item._id || item.id}')">
                         <div class="item-image" style="background-image: url('${item.photo || ''}'); background-color:#222;"></div>
@@ -200,12 +315,14 @@
                         </div>
                     </div>
                 `).join('');
-            } catch (err) { console.error("Load failed"); }
+            } catch (err) { console.error("Browse failed"); }
         }
 
         function openModal(id) {
             const item = allItems.find(i => (i._id === id || i.id === id));
             if(!item) return;
+
+            const isOwner = currentUser && (item.userId === currentUser.userId || item.contact_name === currentUser.userName);
 
             document.getElementById('modalBody').innerHTML = `
                 ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:15px; margin-bottom:1.5rem;">` : ''}
@@ -216,23 +333,81 @@
                     <p>📞 Phone: <b>${item.contact_phone}</b></p>
                     <p>👤 Reported by: <b>${item.contact_name}</b></p>
                 </div>
-                <button class="btn btn-primary" onclick="closeModal()">Close Details</button>
+                ${isOwner ? `<button class="btn btn-primary" style="background:var(--success);" onclick="markAsClaimed('${item._id || item.id}')">Mark as Claimed</button>` : ''}
+                <button class="btn btn-primary" onclick="closeModal()">Close</button>
             `;
-            
-            const modal = document.getElementById('detailModal');
-            modal.style.display = 'flex'; // Triggering the pop-up
+            document.getElementById('detailModal').style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('detailModal').style.display = 'none';
+        function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+        // --- API HANDLERS ---
+        document.getElementById('authForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPass').value;
+            const name = document.getElementById('regName').value;
+
+            try {
+                const endpoint = isLoginMode ? '/login' : '/register';
+                const res = await fetch(API_URL + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    if(isLoginMode) {
+                        localStorage.setItem('user', JSON.stringify(data));
+                        location.reload();
+                    } else { alert("Sign up successful! Please login."); toggleAuthMode(); }
+                } else { alert(data.error); }
+            } catch (err) { alert("Server connection error."); }
+        };
+
+        document.getElementById('reportForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('name', document.getElementById('itemName').value);
+            formData.append('type', document.getElementById('itemType').value);
+            formData.append('description', document.getElementById('itemDescription').value);
+            formData.append('location', document.getElementById('itemLocation').value);
+            formData.append('contact_phone', document.getElementById('contactPhone').value);
+            formData.append('contact_name', currentUser.userName);
+            const photo = document.getElementById('photoInput').files[0];
+            if(photo) formData.append('photo', photo);
+
+            try {
+                const res = await fetch(`${API_URL}/items`, {
+                    method: 'POST',
+                    headers: { 'Authorization': currentUser.token },
+                    body: formData
+                });
+                if(res.ok) { alert("Reported!"); showSection('browse'); }
+                else { alert("Failed to report."); }
+            } catch (err) { alert("Network error."); }
+        };
+
+        async function markAsClaimed(id) {
+            if(!confirm("Remove this report permanently?")) return;
+            try {
+                const res = await fetch(`${API_URL}/items/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': currentUser.token }
+                });
+                if(res.ok) { closeModal(); loadItems(); alert("Report removed!"); }
+            } catch (err) { alert("Error deleting report."); }
         }
 
         function updateUI() {
+            const authNavBtn = document.getElementById('authNavBtn');
             const userDisplay = document.getElementById('userNameDisplay');
-            if (currentUser) userDisplay.innerText = `Hi, ${currentUser.userName}`;
+            if (currentUser) {
+                authNavBtn.innerText = "Logout";
+                authNavBtn.onclick = () => { localStorage.removeItem('user'); location.reload(); };
+                userDisplay.innerText = `Hi, ${currentUser.userName}`;
+            }
         }
-
-        // Add back your auth login/register/report logic here
     </script>
 </body>
 </html>
