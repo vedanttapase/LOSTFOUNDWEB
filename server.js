@@ -19,7 +19,7 @@ if (!fs.existsSync(uploadDir)){
 }
 app.use('/uploads', express.static('uploads'));
 
-// Mock Databases (Resets when server restarts)
+// Mock Databases (Note: In-memory resets every time the server restarts on Render)
 let users = [];
 let items = [];
 
@@ -64,6 +64,12 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
 
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
+        
+        // FIX: We detect the host dynamically so images work on Localhost AND Cloud
+        const protocol = req.protocol;
+        const host = req.get('host');
+        const imageUrl = req.file ? `${protocol}://${host}/uploads/${req.file.filename}` : null;
+
         const newItem = {
             id: Date.now(),
             userId: decoded.userId,
@@ -73,7 +79,7 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
             location: req.body.location,
             contact_phone: req.body.contact_phone,
             contact_name: req.body.contact_name,
-            photo: req.file ? `http://localhost:3001/uploads/${req.file.filename}` : null
+            photo: imageUrl
         };
         items.push(newItem);
         res.json(newItem);
@@ -90,7 +96,6 @@ app.delete('/api/items/:id', (req, res) => {
 
         if (itemIndex === -1) return res.status(404).json({ error: "Item not found" });
 
-        // Security check
         if (items[itemIndex].userId !== decoded.userId) {
             return res.status(403).json({ error: "Forbidden: You are not the owner" });
         }
@@ -100,9 +105,10 @@ app.delete('/api/items/:id', (req, res) => {
     } catch (err) { res.status(401).json({ error: "Auth failed" }); }
 });
 
-app.listen(3001, () => {
+// FIX: Added process.env.PORT so it works on Cloud services
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
     console.log('-----------------------------------');
-    console.log('Server running on http://localhost:3001');
-    console.log('Press Ctrl + C to stop the server');
+    console.log(`Server running on port ${PORT}`);
     console.log('-----------------------------------');
 });
