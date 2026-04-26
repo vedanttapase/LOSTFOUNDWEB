@@ -140,7 +140,7 @@
 
         .btn { padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; display: inline-block; text-align: center; width: 100%; }
         .btn-primary { background: var(--accent); color: white; box-shadow: var(--glow); }
-        .btn-danger { background: #ff4444; color: white; margin-top: 1rem; }
+        .btn-success { background: var(--success); color: #000; margin-top: 1rem; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -286,9 +286,10 @@
                 const res = await fetch(`${API_URL}/items`);
                 const items = await res.json();
                 document.getElementById('itemsContainer').innerHTML = items.map(item => {
+                    // FIX: Ensure image uses HTTPS
                     let photoSrc = item.photo;
-                    if (photoSrc && photoSrc.startsWith('http:')) {
-                        photoSrc = photoSrc.replace('http:', 'https:');
+                    if (photoSrc && photoSrc.startsWith('http://')) {
+                        photoSrc = photoSrc.replace('http://', 'https://');
                     }
                     const finalImg = photoSrc || 'https://via.placeholder.com/300x200?text=No+Image';
                     
@@ -314,8 +315,8 @@
                 if(!item) return;
 
                 let photoSrc = item.photo;
-                if (photoSrc && photoSrc.startsWith('http:')) {
-                    photoSrc = photoSrc.replace('http:', 'https:');
+                if (photoSrc && photoSrc.startsWith('http://')) {
+                    photoSrc = photoSrc.replace('http://', 'https://');
                 }
                 const finalImg = photoSrc || 'https://via.placeholder.com/500x300?text=No+Image+Available';
 
@@ -331,28 +332,28 @@
                         <p style="margin-bottom:8px;">📞 <b>Contact:</b> ${item.contact_phone}</p>
                         <p>👤 <b>Reported by:</b> ${item.contact_name}</p>
                     </div>
-                    ${isOwner ? `<button onclick="deleteItem(${item.id})" class="btn btn-danger">Remove This Report</button>` : ''}
+                    ${isOwner ? `<button onclick="deleteItem(${item.id})" class="btn btn-success">Item Found</button>` : ''}
                 `;
                 document.getElementById('detailModal').style.display = 'flex';
             } catch (err) { alert("Could not open item details."); }
         }
 
         async function deleteItem(id) {
-            if(!confirm("Are you sure you want to remove this report?")) return;
+            if(!confirm("Mark this item as found? It will be removed from the list.")) return;
             try {
                 const res = await fetch(`${API_URL}/items/${id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': currentUser.token }
                 });
                 if(res.ok) {
-                    alert("Item removed successfully.");
+                    alert("Status Updated: Item marked as Found.");
                     closeModal();
                     loadItems();
                 } else {
-                    alert("Failed to remove item.");
+                    alert("Action failed.");
                 }
             } catch (err) {
-                alert("Error removing item.");
+                alert("Error updating status.");
             }
         }
 
