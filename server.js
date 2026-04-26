@@ -10,7 +10,6 @@ const app = express();
 const SECRET_KEY = "LOST_FIND_SECURE_KEY_2026"; 
 
 // --- MIDDLEWARE ---
-// This allows your GitHub frontend to communicate with this Render backend
 app.use(cors());
 app.use(express.json());
 
@@ -21,7 +20,7 @@ if (!fs.existsSync(uploadDir)){
 }
 app.use('/uploads', express.static('uploads'));
 
-// Mock Databases (Resets when server restarts)
+// Mock Databases
 let users = [];
 let items = [];
 
@@ -34,7 +33,6 @@ const upload = multer({ storage });
 
 // --- ROUTES ---
 
-// Front Door Route
 app.get('/', (req, res) => {
     res.send(`
         <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
@@ -45,7 +43,6 @@ app.get('/', (req, res) => {
     `);
 });
 
-// AUTH: Register
 app.post('/api/register', async (req, res) => {
     const { name, email, password } = req.body;
     if (users.find(u => u.email === email)) return res.status(400).json({ error: "User already exists" });
@@ -56,7 +53,6 @@ app.post('/api/register', async (req, res) => {
     res.json({ message: "Registered successfully" });
 });
 
-// AUTH: Login
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     const user = users.find(u => u.email === email);
@@ -69,18 +65,14 @@ app.post('/api/login', async (req, res) => {
     res.json({ token, userId: user.id, userName: user.name, email: user.email });
 });
 
-// ITEMS: Get All
 app.get('/api/items', (req, res) => res.json(items));
 
-// ITEMS: Post New
 app.post('/api/items', upload.single('photo'), (req, res) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ error: "No token provided" });
 
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
-        
-        // Dynamic host detection for image URLs (local vs render)
         const protocol = req.protocol;
         const host = req.get('host');
         const imageUrl = req.file ? `${protocol}://${host}/uploads/${req.file.filename}` : null;
@@ -101,7 +93,6 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
     } catch (err) { res.status(401).json({ error: "Invalid Session" }); }
 });
 
-// ITEMS: Delete
 app.delete('/api/items/:id', (req, res) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ error: "Unauthorized" });
