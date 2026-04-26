@@ -3,217 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACE AI | CAMPUS FINDERS</title>
+    <title>LostFind - Premium Portal</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Playfair+Display:wght@700;800&display=swap');
+
         :root {
-            --neon-red: #ff0000;
-            --maroon: #800000;
-            --bg-black: #050505;
-            --terminal-green: #00ff41;
-            --border-glow: 0 0 15px rgba(128, 0, 0, 0.6);
+            --primary: #1a1a1e;
+            --accent: #e91e63;
+            --accent-light: #ff4081;
+            --text-light: #f5f5f5;
+            --text-muted: #b0b0b0;
+            --border: rgba(255, 255, 255, 0.1);
+            --glow: 0 0 20px rgba(233, 30, 99, 0.4);
+            --success: #00d4aa;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-black);
-            color: white;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            background: #0f1419;
+            color: var(--text-light);
+            line-height: 1.6;
         }
 
         /* --- HEADER --- */
         header {
-            width: 100%;
-            padding: 30px;
-            text-align: center;
-            border-bottom: 2px solid var(--maroon);
-            box-shadow: 0 0 20px var(--maroon);
-            margin-bottom: 40px;
-            background: rgba(10, 0, 0, 0.9);
-        }
-
-        h1 { font-size: 2rem; letter-spacing: 3px; }
-
-        /* --- GRID --- */
-        .container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 25px;
-            width: 90%;
-            max-width: 1200px;
-            padding-bottom: 50px;
-        }
-
-        .item-card {
-            background: #111;
-            border: 1px solid var(--maroon);
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .item-card:hover {
-            border-color: var(--neon-red);
-            box-shadow: 0 0 20px var(--maroon);
-            transform: translateY(-5px);
-        }
-
-        .item-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-            border: 1px solid #222;
-            margin-bottom: 15px;
-        }
-
-        .item-card h3 { margin-bottom: 10px; color: var(--neon-red); }
-
-        /* --- THE MODAL (POP-UP) --- */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed;
-            z-index: 10000; /* Ensure it stays on top */
-            left: 0;
+            background: rgba(26, 26, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 5%;
+            position: sticky;
             top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(8px);
-            justify-content: center;
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
         }
 
-        .modal-content {
-            background-color: #000;
-            padding: 25px;
-            border: 2px solid var(--neon-red);
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 0 30px var(--maroon);
-            position: relative;
-            animation: flicker 0.15s infinite alternate;
-        }
-
-        @keyframes flicker {
-            0% { opacity: 0.97; }
-            100% { opacity: 1; }
-        }
-
-        .close-btn {
-            color: var(--neon-red);
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            font-size: 35px;
-            font-weight: bold;
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             cursor: pointer;
         }
 
-        .close-btn:hover { color: white; }
+        nav { display: flex; gap: 1rem; align-items: center; }
 
-        .modal-btn {
-            background: var(--maroon);
-            color: white;
-            border: 1px solid var(--neon-red);
-            padding: 12px;
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 0.6rem 1.2rem;
+            border-radius: 50px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 20px;
-            font-family: inherit;
-            font-weight: bold;
+            font-weight: 600;
             transition: 0.3s;
         }
 
-        .modal-btn:hover {
-            background: var(--neon-red);
-            color: black;
+        .nav-btn:hover { border-color: var(--accent); }
+        .nav-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: var(--glow);
         }
 
-        footer {
-            margin-top: auto;
-            padding: 30px;
-            font-size: 0.8rem;
-            color: #555;
-            text-align: center;
-            width: 100%;
-            border-top: 1px solid #111;
+        .nav-user { color: var(--accent); font-weight: bold; margin-right: 10px; font-size: 0.9rem; }
+
+        /* --- SECTIONS --- */
+        section { display: none; padding: 4rem 5%; min-height: 100vh; }
+        section.active { display: block; animation: fadeIn 0.5s ease; }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
+
+        .item-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: 0.3s;
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+        .item-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .item-image { height: 200px; background-size: cover; background-position: center; }
+        .item-content { padding: 1.5rem; }
+
+        /* --- MODAL (THE FIX) --- */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); 
+            z-index: 9999; 
+            justify-content: center; 
+            align-items: center; 
+            backdrop-filter: blur(8px); 
+            padding: 20px;
+        }
+        .modal-content { 
+            background: #1a1a1e; 
+            padding: 2.5rem; 
+            border-radius: 20px; 
+            max-width: 550px; 
+            width: 100%; 
+            position: relative; 
+            border: 1px solid var(--border); 
+            max-height: 90vh; 
+            overflow-y: auto; 
+        }
+
+        .btn { padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; width: 100%; margin-top: 1rem; }
+        .btn-primary { background: var(--accent); color: white; box-shadow: var(--glow); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>SYSTEM ACCESS: CAMPUS FINDERS</h1>
-    <p style="color: var(--terminal-green); font-size: 0.9rem;">[ STATUS: ENCRYPTED_CONNECTION_ACTIVE ]</p>
-</header>
+    <header>
+        <div class="header-content">
+            <div class="logo" onclick="showSection('hero')">LostFind</div>
+            <nav>
+                <span id="userNameDisplay" class="nav-user"></span>
+                <button class="nav-btn active" onclick="showSection('hero')">Home</button>
+                <button class="nav-btn" onclick="showSection('browse')">Browse</button>
+                <button class="nav-btn" onclick="handleReportClick()">Report Item</button>
+                <button class="nav-btn" id="authNavBtn" onclick="showSection('auth')">Login</button>
+            </nav>
+        </div>
+    </header>
 
-<div class="container">
-    <div class="item-card" onclick="openItem('Lost Wallet', 'Found near the library. Contains Student ID and cash. Verify name to claim.', 'main.jpg')">
-        <img src="main.jpg" alt="Lost Item">
-        <h3>LOST ITEM #001</h3>
-        <p style="font-size: 0.8rem; color: #888;">SCAN FOR DATA</p>
+    <section id="hero" class="active">
+        <div style="text-align: center; margin-top: 10vh;">
+            <h1 style="font-family: 'Playfair Display'; font-size: 3.5rem;">Find What You've Lost</h1>
+            <p style="color: var(--text-muted); margin: 2rem auto; max-width: 600px;">A secure community portal to reunite you with your belongings.</p>
+            <button class="btn btn-primary" style="width: 250px;" onclick="showSection('browse')">Start Browsing</button>
+        </div>
+    </section>
+
+    <section id="browse">
+        <h2 style="text-align: center; margin-bottom: 2.5rem; font-family: 'Playfair Display'; font-size: 2.5rem;">Recent Reports</h2>
+        <div id="itemsContainer" class="items-grid"></div>
+    </section>
+
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span onclick="closeModal()" style="position:absolute; right:20px; top:15px; cursor:pointer; font-size:2rem; color:var(--accent);">&times;</span>
+            <div id="modalBody"></div>
+        </div>
     </div>
 
-    </div>
+    <script>
+        const API_URL = 'https://lostfoundweb.onrender.com/api';
+        let currentUser = JSON.parse(localStorage.getItem('user')) || null;
+        let allItems = []; // Global storage for items
 
-<div id="itemWindow" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeItem()">&times;</span>
-        <h2 id="modalTitle" style="color: var(--neon-red); margin-bottom: 10px;">ITEM_DETAILS</h2>
-        <hr style="border: 0.5px solid var(--maroon); margin-bottom: 15px;">
-        
-        <img id="modalImg" src="" style="width:100%; border: 1px solid #333;">
-        
-        <p id="modalDesc" style="margin-top: 20px; line-height: 1.6; font-size: 0.9rem; color: #ccc;"></p>
-        
-        <button class="modal-btn" onclick="closeItem()">RETURN TO DASHBOARD</button>
-    </div>
-</div>
+        window.onload = () => {
+            updateUI();
+            loadItems();
+        };
 
-<footer>
-    MADE BY RUSHIKESH DHERE | PROJECT B | 2026
-</footer>
-
-<script>
-    const modal = document.getElementById("itemWindow");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalDesc = document.getElementById("modalDesc");
-    const modalImg = document.getElementById("modalImg");
-
-    /**
-     * Function to open the modal with dynamic content
-     */
-    function openItem(name, desc, imgSource) {
-        modalTitle.innerText = "DATA_ID: " + name.toUpperCase();
-        modalDesc.innerText = "LOG_ENTRY: " + desc;
-        modalImg.src = imgSource;
-        
-        // Show the modal using flex to center content
-        modal.style.display = "flex";
-    }
-
-    /**
-     * Function to hide the modal
-     */
-    function closeItem() {
-        modal.style.display = "none";
-    }
-
-    /**
-     * Close modal if the user clicks the darkened background
-     */
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            closeItem();
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(id === 'browse') loadItems();
         }
-    }
-</script>
 
+        async function loadItems() {
+            try {
+                const res = await fetch(`${API_URL}/items`);
+                allItems = await res.json();
+                const container = document.getElementById('itemsContainer');
+                
+                container.innerHTML = allItems.map(item => `
+                    <div class="item-card" onclick="openModal('${item._id || item.id}')">
+                        <div class="item-image" style="background-image: url('${item.photo || ''}'); background-color:#222;"></div>
+                        <div class="item-content">
+                            <small style="color:var(--accent)">${item.type}</small>
+                            <h3>${item.name}</h3>
+                            <p style="font-size:0.8rem; color:var(--text-muted)">📍 ${item.location}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) { console.error("Load failed"); }
+        }
+
+        function openModal(id) {
+            const item = allItems.find(i => (i._id === id || i.id === id));
+            if(!item) return;
+
+            document.getElementById('modalBody').innerHTML = `
+                ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:15px; margin-bottom:1.5rem;">` : ''}
+                <h2 style="font-family:'Playfair Display'; color:var(--accent)">${item.name}</h2>
+                <p style="margin:1rem 0; color:var(--text-muted)">${item.description || 'No description provided.'}</p>
+                <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:10px; border-left: 4px solid var(--accent);">
+                    <p>📍 Location: <b>${item.location}</b></p>
+                    <p>📞 Phone: <b>${item.contact_phone}</b></p>
+                    <p>👤 Reported by: <b>${item.contact_name}</b></p>
+                </div>
+                <button class="btn btn-primary" onclick="closeModal()">Close Details</button>
+            `;
+            
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'flex'; // Triggering the pop-up
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        function updateUI() {
+            const userDisplay = document.getElementById('userNameDisplay');
+            if (currentUser) userDisplay.innerText = `Hi, ${currentUser.userName}`;
+        }
+
+        // Add back your auth login/register/report logic here
+    </script>
 </body>
 </html>
