@@ -253,7 +253,8 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3001/api';
+        // UPDATED FOR RENDER DEPLOYMENT
+        const API_URL = window.location.origin + '/api';
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let isLoginMode = true;
 
@@ -327,7 +328,7 @@
                         toggleAuthMode();
                     }
                 } else { alert(data.error); }
-            } catch (err) { alert("Server is not responding. Ensure server.js is running."); }
+            } catch (err) { alert("Server is not responding. Ensure your backend is running on Render."); }
         };
 
         // --- REPORT LOGIC ---
@@ -382,7 +383,6 @@
             const items = await res.json();
             const item = items.find(i => i.id == id);
             
-            // SECURITY CHECK: Matches current user to item founder
             const isOwner = currentUser && item.userId == currentUser.userId;
 
             document.getElementById('modalBody').innerHTML = `
@@ -407,7 +407,7 @@
                 `}
             `;
             document.getElementById('detailModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Stop background scrolling
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal() {
@@ -432,7 +432,6 @@
             }
         }
 
-        // Initialize UI
         updateUI();
     </script>
 </body>
