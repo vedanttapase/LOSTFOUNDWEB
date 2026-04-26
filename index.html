@@ -253,7 +253,15 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3001/api';
+        /**
+         * CHANGE MADE HERE: 
+         * Automatically uses your cloud backend if you've deployed it, 
+         * otherwise it defaults to localhost for your VS Code testing.
+         **/
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+            ? 'http://localhost:3001/api' 
+            : 'https://your-backend-name.onrender.com/api'; // <--- REPLACE THIS URL AFTER DEPLOYING TO RENDER
+
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let isLoginMode = true;
 
@@ -327,7 +335,7 @@
                         toggleAuthMode();
                     }
                 } else { alert(data.error); }
-            } catch (err) { alert("Server is not responding. Ensure server.js is running."); }
+            } catch (err) { alert("Server is not responding. Ensure your backend is running and API_URL is correct."); }
         };
 
         // --- REPORT LOGIC ---
@@ -344,19 +352,21 @@
             const photo = document.getElementById('photoInput').files[0];
             if(photo) formData.append('photo', photo);
 
-            const res = await fetch(`${API_URL}/items`, {
-                method: 'POST',
-                headers: { 'Authorization': currentUser.token },
-                body: formData
-            });
+            try {
+                const res = await fetch(`${API_URL}/items`, {
+                    method: 'POST',
+                    headers: { 'Authorization': currentUser.token },
+                    body: formData
+                });
 
-            if(res.ok) { 
-                alert("Item reported successfully!"); 
-                document.getElementById('reportForm').reset();
-                showSection('browse'); 
-            } else {
-                alert("Error reporting item.");
-            }
+                if(res.ok) { 
+                    alert("Item reported successfully!"); 
+                    document.getElementById('reportForm').reset();
+                    showSection('browse'); 
+                } else {
+                    alert("Error reporting item.");
+                }
+            } catch (err) { alert("Backend connection lost."); }
         };
 
         // --- BROWSE LOGIC ---
@@ -374,40 +384,44 @@
                         </div>
                     </div>
                 `).join('');
-            } catch (err) { console.error("Error loading items."); }
+            } catch (err) { 
+                console.error("Error loading items."); 
+                document.getElementById('itemsContainer').innerHTML = "<p>Unable to load items. Is the server running?</p>";
+            }
         }
 
         async function openModal(id) {
-            const res = await fetch(`${API_URL}/items`);
-            const items = await res.json();
-            const item = items.find(i => i.id == id);
-            
-            // SECURITY CHECK: Matches current user to item founder
-            const isOwner = currentUser && item.userId == currentUser.userId;
-
-            document.getElementById('modalBody').innerHTML = `
-                ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:15px; margin-bottom:1.5rem; border:1px solid #333;">` : ''}
-                <h2 style="font-family:'Playfair Display'; font-size:2rem;">${item.name}</h2>
-                <p style="margin:1rem 0; color:#ccc; line-height:1.6;">${item.description || 'No description provided.'}</p>
+            try {
+                const res = await fetch(`${API_URL}/items`);
+                const items = await res.json();
+                const item = items.find(i => i.id == id);
                 
-                <div style="background:rgba(255,255,255,0.03); padding:1.2rem; border-radius:12px; font-size:0.95rem; border:1px solid var(--border);">
-                    <p style="margin-bottom:8px;">📍 <span style="color:var(--text-muted)">Location:</span> <b>${item.location}</b></p>
-                    <p style="margin-bottom:8px;">📞 <span style="color:var(--text-muted)">Contact Phone:</span> <b>${item.contact_phone}</b></p>
-                    <p>👤 <span style="color:var(--text-muted)">Reported by:</span> <b>${item.contact_name}</b></p>
-                </div>
+                const isOwner = currentUser && item.userId == currentUser.userId;
 
-                ${isOwner ? `
-                    <button class="btn" onclick="markAsClaimed(${item.id})" style="margin-top:1.5rem; background:var(--success); color:black; font-weight:800;">
-                        ✅ Mark as Found & Remove Report
-                    </button>
-                ` : `
-                    <div style="text-align:center; margin-top:1.5rem; padding:10px; background:rgba(0,0,0,0.2); border-radius:10px;">
-                        <p style="font-size:0.8rem; color:var(--text-muted);">This is a verified report. Please contact the reporter directly to claim.</p>
+                document.getElementById('modalBody').innerHTML = `
+                    ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:15px; margin-bottom:1.5rem; border:1px solid #333;">` : ''}
+                    <h2 style="font-family:'Playfair Display'; font-size:2rem;">${item.name}</h2>
+                    <p style="margin:1rem 0; color:#ccc; line-height:1.6;">${item.description || 'No description provided.'}</p>
+                    
+                    <div style="background:rgba(255,255,255,0.03); padding:1.2rem; border-radius:12px; font-size:0.95rem; border:1px solid var(--border);">
+                        <p style="margin-bottom:8px;">📍 <span style="color:var(--text-muted)">Location:</span> <b>${item.location}</b></p>
+                        <p style="margin-bottom:8px;">📞 <span style="color:var(--text-muted)">Contact Phone:</span> <b>${item.contact_phone}</b></p>
+                        <p>👤 <span style="color:var(--text-muted)">Reported by:</span> <b>${item.contact_name}</b></p>
                     </div>
-                `}
-            `;
-            document.getElementById('detailModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden'; // Stop background scrolling
+
+                    ${isOwner ? `
+                        <button class="btn" onclick="markAsClaimed(${item.id})" style="margin-top:1.5rem; background:var(--success); color:black; font-weight:800;">
+                            ✅ Mark as Found & Remove Report
+                        </button>
+                    ` : `
+                        <div style="text-align:center; margin-top:1.5rem; padding:10px; background:rgba(0,0,0,0.2); border-radius:10px;">
+                            <p style="font-size:0.8rem; color:var(--text-muted);">This is a verified report. Please contact the reporter directly to claim.</p>
+                        </div>
+                    `}
+                `;
+                document.getElementById('detailModal').style.display = 'flex';
+                document.body.style.overflow = 'hidden'; 
+            } catch (err) { alert("Could not open details."); }
         }
 
         function closeModal() {
@@ -418,21 +432,22 @@
         async function markAsClaimed(id) {
             if(!confirm("Has this item been safely returned? This report will be permanently removed.")) return;
             
-            const res = await fetch(`${API_URL}/items/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': currentUser.token }
-            });
+            try {
+                const res = await fetch(`${API_URL}/items/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': currentUser.token }
+                });
 
-            if(res.ok) { 
-                closeModal(); 
-                loadItems(); 
-                alert("Item successfully claimed and report removed.");
-            } else {
-                alert("Only the person who reported this item can remove it.");
-            }
+                if(res.ok) { 
+                    closeModal(); 
+                    loadItems(); 
+                    alert("Item successfully claimed and report removed.");
+                } else {
+                    alert("Only the person who reported this item can remove it.");
+                }
+            } catch (err) { alert("Error connecting to server."); }
         }
 
-        // Initialize UI
         updateUI();
     </script>
 </body>
