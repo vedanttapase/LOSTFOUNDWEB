@@ -34,7 +34,7 @@ const upload = multer({ storage });
 
 // --- ROUTES ---
 
-// Front Door Route (Shows the message from your screenshot)
+// Front Door Route
 app.get('/', (req, res) => {
     res.send(`
         <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
@@ -80,7 +80,7 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
         
-        // Dynamic host detection for image URLs (local vs render)
+        // Dynamic host detection for image URLs
         const protocol = req.protocol;
         const host = req.get('host');
         const imageUrl = req.file ? `${protocol}://${host}/uploads/${req.file.filename}` : null;
@@ -122,10 +122,9 @@ app.delete('/api/items/:id', (req, res) => {
 });
 
 // --- SERVER START ---
-// Render provides a port via process.env.PORT
+// Render assignments: dynamic PORT and 0.0.0.0 binding
 const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
-});
 });
