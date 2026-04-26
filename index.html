@@ -28,6 +28,7 @@
             overflow-x: hidden;
         }
 
+        /* --- HEADER --- */
         header {
             background: rgba(26, 26, 30, 0.95);
             backdrop-filter: blur(10px);
@@ -78,6 +79,7 @@
 
         .nav-user { color: var(--accent); font-weight: bold; margin-right: 10px; font-size: 0.9rem; }
 
+        /* --- SECTIONS --- */
         section { display: none; padding: 4rem 5%; min-height: 100vh; }
         section.active { display: block; animation: fadeIn 0.5s ease; }
 
@@ -106,6 +108,7 @@
             font-family: inherit;
         }
 
+        /* --- GRID --- */
         .items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -126,6 +129,7 @@
         .item-image { height: 200px; background-size: cover; background-position: center; }
         .item-content { padding: 1.5rem; }
 
+        /* --- MODAL --- */
         .modal { 
             display: none; position: fixed; top: 0; left: 0; 
             width: 100%; height: 100%; background: rgba(0,0,0,0.9); 
@@ -244,12 +248,8 @@
     </div>
 
     <script>
-        // UPDATED URL TO MATCH YOUR RENDER SERVICE
-        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-            ? 'http://localhost:3001/api' 
-            : 'https://lostfoundweb.onrender.com/api';
-
-        console.log("Current API Connection:", API_URL);
+        // --- API CONFIGURATION ---
+        const API_URL = 'https://lostfoundweb.onrender.com/api';
 
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let isLoginMode = true;
@@ -308,7 +308,7 @@
                         location.reload();
                     } else { alert("Sign up successful!"); toggleAuthMode(); }
                 } else { alert(data.error); }
-            } catch (err) { alert("Server Error. Check Render logs."); }
+            } catch (err) { alert("Connection Error. Is your Render server awake?"); }
         };
 
         document.getElementById('reportForm').onsubmit = async (e) => {
@@ -329,9 +329,9 @@
                     headers: { 'Authorization': currentUser.token },
                     body: formData
                 });
-                if(res.ok) { alert("Reported!"); document.getElementById('reportForm').reset(); showSection('browse'); }
-                else { alert("Error reporting."); }
-            } catch (err) { alert("Connection lost."); }
+                if(res.ok) { alert("Item Reported!"); document.getElementById('reportForm').reset(); showSection('browse'); }
+                else { alert("Failed to report item."); }
+            } catch (err) { alert("Network error during report."); }
         };
 
         async function loadItems() {
@@ -339,7 +339,7 @@
                 const res = await fetch(`${API_URL}/items`);
                 const items = await res.json();
                 document.getElementById('itemsContainer').innerHTML = items.map(item => `
-                    <div class="item-card" onclick="openModal(${item.id})">
+                    <div class="item-card" onclick="openModal('${item._id}')">
                         <div class="item-image" style="background-image: url('${item.photo || ''}'); background-color:#222;"></div>
                         <div class="item-content">
                             <small style="color:var(--accent)">${item.type}</small>
@@ -348,41 +348,43 @@
                         </div>
                     </div>
                 `).join('');
-            } catch (err) { console.error("Load failed."); }
+            } catch (err) { console.error("Browse failed."); }
         }
 
         async function openModal(id) {
             try {
                 const res = await fetch(`${API_URL}/items`);
                 const items = await res.json();
-                const item = items.find(i => i.id == id);
-                const isOwner = currentUser && item.userId == currentUser.userId;
+                const item = items.find(i => i._id === id);
+                const isOwner = currentUser && item.userId === currentUser.userId;
 
                 document.getElementById('modalBody').innerHTML = `
-                    ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:15px; margin-bottom:1rem;">` : ''}
-                    <h2>${item.name}</h2>
-                    <p>${item.description || ''}</p>
-                    <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:10px; margin-top:1rem;">
+                    ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:15px; margin-bottom:1rem; border:1px solid #333;">` : ''}
+                    <h2 style="font-family:'Playfair Display'">${item.name}</h2>
+                    <p style="margin:1rem 0">${item.description || 'No description provided.'}</p>
+                    <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:10px;">
                         <p>📍 Location: <b>${item.location}</b></p>
                         <p>📞 Phone: <b>${item.contact_phone}</b></p>
+                        <p>👤 Reported by: <b>${item.contact_name}</b></p>
                     </div>
-                    ${isOwner ? `<button class="btn btn-primary" style="margin-top:1rem; background:var(--success);" onclick="markAsClaimed(${item.id})">Mark Found</button>` : ''}
+                    ${isOwner ? `<button class="btn btn-primary" style="margin-top:1rem; background:var(--success);" onclick="markAsClaimed('${item._id}')">Mark as Claimed</button>` : ''}
                 `;
                 document.getElementById('detailModal').style.display = 'flex';
-            } catch (err) { alert("Error."); }
+            } catch (err) { alert("Error opening item details."); }
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
 
         async function markAsClaimed(id) {
-            if(!confirm("Remove report?")) return;
+            if(!confirm("Remove this report permanently?")) return;
             try {
                 const res = await fetch(`${API_URL}/items/${id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': currentUser.token }
                 });
-                if(res.ok) { closeModal(); loadItems(); alert("Success!"); }
-            } catch (err) { alert("Error."); }
+                if(res.ok) { closeModal(); loadItems(); alert("Report removed!"); }
+                else { alert("Unauthorized."); }
+            } catch (err) { alert("Error deleting report."); }
         }
 
         updateUI();
