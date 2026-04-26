@@ -9,6 +9,8 @@ const fs = require('fs');
 const app = express();
 const SECRET_KEY = "LOST_FIND_SECURE_KEY_2026"; 
 
+// --- MIDDLEWARE ---
+// This allows your GitHub website to talk to this Render server
 app.use(cors());
 app.use(express.json());
 
@@ -19,19 +21,25 @@ if (!fs.existsSync(uploadDir)){
 }
 app.use('/uploads', express.static('uploads'));
 
-// Mock Databases (Note: In-memory resets every time the server restarts on Render)
+// Mock Databases (Note: These reset when Render goes to sleep)
 let users = [];
 let items = [];
 
-// MULTER CONFIG
+// --- MULTER CONFIG (For Photos) ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-// --- AUTH ROUTES ---
+// --- ROUTES ---
 
+// 1. Home Route (Fixes the "Cannot GET /" error)
+app.get('/', (req, res) => {
+    res.send('<h1>LostFound Backend is Live!</h1><p>The server is running correctly. Connect via your GitHub frontend.</p>');
+});
+
+// 2. Auth: Register
 app.post('/api/register', async (req, res) => {
     const { name, email, password } = req.body;
     if (users.find(u => u.email === email)) return res.status(400).json({ error: "User already exists" });
@@ -42,6 +50,7 @@ app.post('/api/register', async (req, res) => {
     res.json({ message: "Registered successfully" });
 });
 
+// 3. Auth: Login
 app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
     const user = users.find(u => u.email === email);
@@ -54,10 +63,10 @@ app.post('/api/login', async (req, res) => {
     res.json({ token, userId: user.id, userName: user.name, email: user.email });
 });
 
-// --- ITEM ROUTES ---
-
+// 4. Items: Get All
 app.get('/api/items', (req, res) => res.json(items));
 
+// 5. Items: Post New
 app.post('/api/items', upload.single('photo'), (req, res) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ error: "No token provided" });
@@ -65,7 +74,7 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
         
-        // FIX: We detect the host dynamically so images work on Localhost AND Cloud
+        // Dynamic host detection for image URLs
         const protocol = req.protocol;
         const host = req.get('host');
         const imageUrl = req.file ? `${protocol}://${host}/uploads/${req.file.filename}` : null;
@@ -86,6 +95,7 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
     } catch (err) { res.status(401).json({ error: "Invalid Session" }); }
 });
 
+// 6. Items: Delete
 app.delete('/api/items/:id', (req, res) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -97,7 +107,7 @@ app.delete('/api/items/:id', (req, res) => {
         if (itemIndex === -1) return res.status(404).json({ error: "Item not found" });
 
         if (items[itemIndex].userId !== decoded.userId) {
-            return res.status(403).json({ error: "Forbidden: You are not the owner" });
+            return res.status(403).json({ error: "Forbidden: Not your post" });
         }
 
         items.splice(itemIndex, 1);
@@ -105,9 +115,9 @@ app.delete('/api/items/:id', (req, res) => {
     } catch (err) { res.status(401).json({ error: "Auth failed" }); }
 });
 
-// FIX: Added process.env.PORT so it works on Cloud services
+// --- SERVER START ---
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log('-----------------------------------');
     console.log(`Server running on port ${PORT}`);
     console.log('-----------------------------------');
