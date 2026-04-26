@@ -123,7 +123,7 @@
             border: 1px solid var(--border);
         }
         .item-card:hover { transform: translateY(-5px); border-color: var(--accent); }
-        .item-image { height: 200px; background-size: cover; background-position: center; }
+        .item-image { height: 200px; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); }
         .item-content { padding: 1.5rem; }
 
         .modal { 
@@ -133,13 +133,14 @@
             backdrop-filter: blur(8px); padding: 20px;
         }
         .modal-content { 
-            background: #1a1a1e; padding: 2rem; border-radius: 20px; 
+            background: #1a1a1e; padding: 2.5rem; border-radius: 20px; 
             max-width: 550px; width: 100%; position: relative; 
             border: 1px solid var(--border); max-height: 90vh; overflow-y: auto; 
         }
 
         .btn { padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; display: inline-block; text-align: center; width: 100%; }
         .btn-primary { background: var(--accent); color: white; box-shadow: var(--glow); }
+        .btn-danger { background: #ff4444; color: white; margin-top: 1rem; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -226,9 +227,7 @@
     </div>
 
     <script>
-        // --- THIS IS THE MISSING LINE THAT CONNECTS TO YOUR RENDER BACKEND ---
         const API_URL = "https://lostfoundweb.onrender.com/api";
-
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let isLoginMode = true;
 
@@ -279,40 +278,82 @@
                     if(isLoginMode) { localStorage.setItem('user', JSON.stringify(data)); location.reload(); }
                     else { alert("Sign up successful! Please login."); toggleAuthMode(); }
                 } else { alert(data.error); }
-            } catch (err) { alert("Server is waking up or not responding. Try again in 30 seconds."); }
+            } catch (err) { alert("Error connecting to server."); }
         };
 
         async function loadItems() {
             try {
                 const res = await fetch(`${API_URL}/items`);
                 const items = await res.json();
-                document.getElementById('itemsContainer').innerHTML = items.map(item => `
-                    <div class="item-card" onclick="openModal(${item.id})">
-                        <div class="item-image" style="background-image: url('${item.photo || ''}'); background-color:#222;"></div>
-                        <div class="item-content">
-                            <small style="color:var(--accent)">${item.type}</small>
-                            <h3>${item.name}</h3>
-                            <p style="font-size:0.8rem; color:var(--text-muted)">📍 ${item.location}</p>
+                document.getElementById('itemsContainer').innerHTML = items.map(item => {
+                    let photoSrc = item.photo;
+                    if (photoSrc && photoSrc.startsWith('http:')) {
+                        photoSrc = photoSrc.replace('http:', 'https:');
+                    }
+                    const finalImg = photoSrc || 'https://via.placeholder.com/300x200?text=No+Image';
+                    
+                    return `
+                        <div class="item-card" onclick="openModal(${item.id})">
+                            <div class="item-image" style="background-image: url('${finalImg}');"></div>
+                            <div class="item-content">
+                                <small style="color:var(--accent)">${item.type}</small>
+                                <h3 style="margin: 5px 0;">${item.name}</h3>
+                                <p style="font-size:0.85rem; color:var(--text-muted)">📍 ${item.location}</p>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             } catch (err) { console.error("Error loading items."); }
         }
 
         async function openModal(id) {
-            const res = await fetch(`${API_URL}/items`);
-            const items = await res.json();
-            const item = items.find(i => i.id == id);
-            document.getElementById('modalBody').innerHTML = `
-                ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:15px; margin-bottom:1rem;">` : ''}
-                <h2>${item.name}</h2>
-                <p>${item.description || ''}</p>
-                <div style="margin-top:1rem; padding:1rem; background:rgba(255,255,255,0.05); border-radius:10px;">
-                    <p>📍 Location: ${item.location}</p>
-                    <p>📞 Contact: ${item.contact_phone}</p>
-                </div>
-            `;
-            document.getElementById('detailModal').style.display = 'flex';
+            try {
+                const res = await fetch(`${API_URL}/items`);
+                const items = await res.json();
+                const item = items.find(i => i.id == id);
+                if(!item) return;
+
+                let photoSrc = item.photo;
+                if (photoSrc && photoSrc.startsWith('http:')) {
+                    photoSrc = photoSrc.replace('http:', 'https:');
+                }
+                const finalImg = photoSrc || 'https://via.placeholder.com/500x300?text=No+Image+Available';
+
+                const isOwner = currentUser && item.userId == currentUser.userId;
+
+                document.getElementById('modalBody').innerHTML = `
+                    <img src="${finalImg}" style="width:100%; border-radius:15px; margin-bottom:1.5rem; border: 1px solid var(--border);">
+                    <h2 style="font-family:'Playfair Display'; font-size:2rem; margin-bottom:0.5rem;">${item.name}</h2>
+                    <p style="color:var(--text-muted); margin-bottom:1.5rem;">${item.description || 'No description provided.'}</p>
+                    
+                    <div style="background:rgba(255,255,255,0.03); padding:1.2rem; border-radius:12px; border:1px solid var(--border);">
+                        <p style="margin-bottom:8px;">📍 <b>Location:</b> ${item.location}</p>
+                        <p style="margin-bottom:8px;">📞 <b>Contact:</b> ${item.contact_phone}</p>
+                        <p>👤 <b>Reported by:</b> ${item.contact_name}</p>
+                    </div>
+                    ${isOwner ? `<button onclick="deleteItem(${item.id})" class="btn btn-danger">Remove This Report</button>` : ''}
+                `;
+                document.getElementById('detailModal').style.display = 'flex';
+            } catch (err) { alert("Could not open item details."); }
+        }
+
+        async function deleteItem(id) {
+            if(!confirm("Are you sure you want to remove this report?")) return;
+            try {
+                const res = await fetch(`${API_URL}/items/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': currentUser.token }
+                });
+                if(res.ok) {
+                    alert("Item removed successfully.");
+                    closeModal();
+                    loadItems();
+                } else {
+                    alert("Failed to remove item.");
+                }
+            } catch (err) {
+                alert("Error removing item.");
+            }
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
@@ -334,7 +375,8 @@
                 headers: { 'Authorization': currentUser.token },
                 body: formData
             });
-            if(res.ok) { alert("Reported!"); location.reload(); }
+            if(res.ok) { alert("Reported successfully!"); showSection('browse'); }
+            else { alert("Failed to report item."); }
         };
 
         updateUI();
