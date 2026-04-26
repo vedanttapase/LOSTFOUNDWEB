@@ -15,7 +15,6 @@
             --text-muted: #b0b0b0;
             --border: rgba(255, 255, 255, 0.1);
             --glow: 0 0 20px rgba(233, 30, 99, 0.4);
-            --success: #00d4aa;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,7 +24,6 @@
             background: #0f1419;
             color: var(--text-light);
             line-height: 1.6;
-            min-height: 100vh;
         }
 
         /* --- HEADER --- */
@@ -40,121 +38,70 @@
         }
 
         .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            max-width: 1400px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
         .logo {
             font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 800;
+            font-size: 1.8rem; font-weight: 800;
             background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             cursor: pointer;
         }
 
         nav { display: flex; gap: 1rem; align-items: center; }
 
         .nav-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-light);
-            padding: 0.6rem 1.2rem;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s;
+            background: transparent; border: 1px solid var(--border); color: var(--text-light);
+            padding: 0.6rem 1.2rem; border-radius: 50px; cursor: pointer; transition: 0.3s;
         }
 
-        .nav-btn:hover { border-color: var(--accent); }
-        .nav-btn.active {
-            background: var(--accent);
-            border-color: var(--accent);
-            box-shadow: var(--glow);
-        }
-
-        .nav-user { color: var(--accent); font-weight: bold; margin-right: 10px; font-size: 0.9rem; }
+        .nav-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: var(--glow); }
 
         /* --- SECTIONS --- */
         section { display: none; padding: 4rem 5%; min-height: 100vh; }
         section.active { display: block; animation: fadeIn 0.5s ease; }
 
-        .auth-box, .form-container {
-            max-width: 450px;
-            margin: 2rem auto;
-            background: rgba(255,255,255,0.03);
-            padding: 2.5rem;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        .form-box {
+            max-width: 500px; margin: 0 auto;
+            background: rgba(255,255,255,0.03); padding: 2.5rem;
+            border-radius: 20px; border: 1px solid var(--border);
         }
 
         .form-group { margin-bottom: 1.2rem; }
-        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; }
         input, select, textarea {
-            width: 100%;
-            padding: 0.8rem;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: white;
-            outline: none;
+            width: 100%; padding: 0.8rem; background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border); border-radius: 10px; color: white;
         }
-        input:focus { border-color: var(--accent); }
 
-        /* --- GRID --- */
+        /* --- GRID & MODAL --- */
         .items-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem; max-width: 1200px; margin: 0 auto;
         }
 
         .item-card {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: 0.3s;
-            cursor: pointer;
-            border: 1px solid var(--border);
+            background: rgba(255,255,255,0.05); border-radius: 15px;
+            overflow: hidden; border: 1px solid var(--border); cursor: pointer;
         }
-        .item-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+
         .item-image { height: 200px; background-size: cover; background-position: center; background-color: #222; }
-        .item-content { padding: 1.5rem; }
 
-        /* --- MODAL --- */
         .modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); 
-            z-index: 9999; 
-            justify-content: center; 
-            align-items: center; 
-            backdrop-filter: blur(10px);
-        }
-        .modal-content { 
-            background: #1a1a1e; 
-            padding: 2.5rem; 
-            border-radius: 20px; 
-            max-width: 500px; 
-            width: 90%; 
-            position: relative; 
-            border: 1px solid var(--border);
-            max-height: 90vh;
-            overflow-y: auto;
+            display: none; position: fixed; top: 0; left: 0; 
+            width: 100%; height: 100%; background: rgba(0,0,0,0.9); 
+            z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(10px);
         }
 
-        .btn { padding: 0.8rem 1.5rem; border-radius: 50px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; width: 100%; margin-top: 1rem; }
-        .btn-primary { background: var(--accent); color: white; box-shadow: var(--glow); }
-        .btn-primary:hover { background: var(--accent-light); }
+        .modal-content { 
+            background: #1a1a1e; padding: 2.5rem; border-radius: 20px; 
+            max-width: 500px; width: 90%; position: relative; border: 1px solid var(--border);
+        }
+
+        .btn { padding: 0.8rem 1.5rem; border-radius: 50px; cursor: pointer; border: none; width: 100%; margin-top: 10px; font-weight: bold; }
+        .btn-primary { background: var(--accent); color: white; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -165,10 +112,10 @@
         <div class="header-content">
             <div class="logo" onclick="showSection('hero')">LostFind</div>
             <nav>
-                <span id="userNameDisplay" class="nav-user"></span>
-                <button class="nav-btn active" id="nav-hero" onclick="showSection('hero')">Home</button>
-                <button class="nav-btn" id="nav-browse" onclick="showSection('browse')">Browse</button>
-                <button class="nav-btn" id="nav-report" onclick="handleReportClick()">Report</button>
+                <span id="userNameDisplay" style="color:var(--accent); font-weight:bold; font-size:0.9rem;"></span>
+                <button class="nav-btn active" id="btn-hero" onclick="showSection('hero')">Home</button>
+                <button class="nav-btn" id="btn-browse" onclick="showSection('browse')">Browse</button>
+                <button class="nav-btn" id="btn-report" onclick="handleReportClick()">Report</button>
                 <button class="nav-btn" id="authNavBtn" onclick="showSection('auth')">Login</button>
             </nav>
         </div>
@@ -176,82 +123,64 @@
 
     <section id="hero" class="active">
         <div style="text-align: center; margin-top: 15vh;">
-            <h1 style="font-family: 'Playfair Display'; font-size: 3.5rem;">Find What You've Lost</h1>
-            <p style="color: var(--text-muted); margin-bottom: 2rem;">Reuniting people with their belongings securely.</p>
+            <h1 style="font-family: 'Playfair Display'; font-size: 3.5rem;">Find Your Belongings</h1>
+            <p style="color: var(--text-muted); margin: 1.5rem 0;">The premium portal for campus lost and found.</p>
             <button class="btn btn-primary" style="max-width: 250px;" onclick="showSection('browse')">Start Browsing</button>
         </div>
     </section>
 
     <section id="auth">
-        <div class="auth-box">
-            <h2 id="authTitle" style="margin-bottom: 1.5rem; font-family: 'Playfair Display'; text-align: center;">Login</h2>
+        <div class="form-box">
+            <h2 id="authTitle" style="margin-bottom: 1.5rem;">Login</h2>
             <form id="authForm">
-                <div class="form-group" id="regNameGroup" style="display: none;">
+                <div class="form-group" id="regNameField" style="display:none;">
                     <label>Full Name</label>
-                    <input type="text" id="regName" placeholder="Enter your name">
+                    <input type="text" id="regName" placeholder="Vedant Tapase">
                 </div>
                 <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" id="authEmail" required placeholder="email@example.com">
+                    <label>Email</label>
+                    <input type="email" id="authEmail" required>
                 </div>
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" id="authPass" required placeholder="••••••••">
+                    <input type="password" id="authPass" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Continue</button>
-                <p id="authToggleText" onclick="toggleAuthMode()" style="text-align:center; margin-top:1.5rem; cursor:pointer; color:var(--accent-light); font-size: 0.85rem;">
-                    Don't have an account? Sign Up
-                </p>
+                <p onclick="toggleAuth()" style="text-align:center; margin-top:1rem; cursor:pointer; color:var(--accent-light);">Switch Login/Signup</p>
             </form>
         </div>
     </section>
 
     <section id="report">
-        <div class="form-container">
-            <h2 style="margin-bottom: 1.5rem; font-family: 'Playfair Display';">Report Item</h2>
+        <div class="form-box">
+            <h2 style="margin-bottom: 1.5rem;">Submit Report</h2>
             <form id="reportForm">
+                <div class="form-group"><label>Item Name</label><input type="text" id="repName" required></div>
                 <div class="form-group">
-                    <label>Item Name</label>
-                    <input type="text" id="itemName" required placeholder="e.g., Blue Wallet">
-                </div>
-                <div class="form-group">
-                    <label>Type</label>
-                    <select id="itemType">
+                    <label>Category</label>
+                    <select id="repType">
                         <option value="Electronics">Electronics</option>
-                        <option value="Personal">Personal/Accessories</option>
-                        <option value="Documents">Documents</option>
+                        <option value="Personal">Personal</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Location Found</label>
-                    <input type="text" id="itemLocation" required placeholder="e.g., Library 2nd Floor">
-                </div>
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea id="itemDesc" rows="3" placeholder="Additional details..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Contact Phone</label>
-                    <input type="tel" id="itemPhone" required placeholder="Your phone number">
-                </div>
-                <div class="form-group">
-                    <label>Item Photo (URL or File)</label>
-                    <input type="file" id="itemPhoto" accept="image/*">
-                </div>
-                <button type="submit" class="btn btn-primary">Submit Report</button>
+                <div class="form-group"><label>Location Found</label><input type="text" id="repLoc" required></div>
+                <div class="form-group"><label>Description</label><textarea id="repDesc" rows="2"></textarea></div>
+                <div class="form-group"><label>Phone Number</label><input type="tel" id="repPhone" required></div>
+                <div class="form-group"><label>Photo</label><input type="file" id="repPhoto" accept="image/*"></div>
+                <button type="submit" class="btn btn-primary">Submit Now</button>
             </form>
         </div>
     </section>
 
     <section id="browse">
-        <h2 style="text-align: center; margin-bottom: 3rem; font-family: 'Playfair Display'; font-size: 2.5rem;">Recent Reports</h2>
+        <h2 style="text-align: center; margin-bottom: 30px;">Recent Items</h2>
         <div id="itemsContainer" class="items-grid"></div>
     </section>
 
     <div id="detailModal" class="modal">
         <div class="modal-content">
-            <span onclick="closeModal()" style="position:absolute; right:20px; top:15px; cursor:pointer; font-size:2rem; color:var(--accent);">&times;</span>
+            <span onclick="closeModal()" style="position:absolute; right:20px; top:10px; cursor:pointer; font-size:2rem; color:var(--accent);">&times;</span>
             <div id="modalBody"></div>
         </div>
     </div>
@@ -260,38 +189,25 @@
         const API_URL = 'https://lostfoundweb.onrender.com/api';
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let allItems = [];
-        let isLoginMode = true;
+        let isLogin = true;
 
-        window.onload = () => {
-            updateUI();
-            loadItems();
-        };
+        window.onload = () => { updateUI(); loadItems(); };
 
         function showSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
             document.getElementById(id).classList.add('active');
-            const navBtn = document.getElementById('nav-' + id);
-            if(navBtn) navBtn.classList.add('active');
-
             if(id === 'browse') loadItems();
         }
 
         function handleReportClick() {
-            if (!currentUser) {
-                alert("Please login first to report an item.");
-                showSection('auth');
-            } else {
-                showSection('report');
-            }
+            if(!currentUser) { alert("Login first!"); showSection('auth'); }
+            else { showSection('report'); }
         }
 
-        function toggleAuthMode() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('authTitle').innerText = isLoginMode ? "Login" : "Sign Up";
-            document.getElementById('regNameGroup').style.display = isLoginMode ? "none" : "block";
-            document.getElementById('authToggleText').innerText = isLoginMode ? "Don't have an account? Sign Up" : "Already have an account? Login";
+        function toggleAuth() {
+            isLogin = !isLogin;
+            document.getElementById('authTitle').innerText = isLogin ? "Login" : "Sign Up";
+            document.getElementById('regNameField').style.display = isLogin ? "none" : "block";
         }
 
         async function loadItems() {
@@ -299,77 +215,88 @@
                 const res = await fetch(`${API_URL}/items`);
                 allItems = await res.json();
                 const container = document.getElementById('itemsContainer');
-                
                 container.innerHTML = allItems.map(item => `
                     <div class="item-card" onclick="openModal('${item._id || item.id}')">
                         <div class="item-image" style="background-image: url('${item.photo || ''}')"></div>
                         <div class="item-content">
-                            <small style="color:var(--accent)">${item.type}</small>
                             <h3>${item.name}</h3>
-                            <p style="font-size:0.8rem; color:var(--text-muted)">📍 ${item.location}</p>
+                            <p>📍 ${item.location}</p>
                         </div>
                     </div>
                 `).join('');
-            } catch (err) { console.error("Browse Error"); }
+            } catch (e) { console.error("Fetch failed"); }
         }
 
         function openModal(id) {
             const item = allItems.find(i => (i._id === id || i.id === id));
             if(!item) return;
-
             document.getElementById('modalBody').innerHTML = `
-                ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:15px; margin-bottom:1.5rem;">` : ''}
-                <h2 style="font-family:'Playfair Display'; color:var(--accent)">${item.name}</h2>
-                <p style="margin:1rem 0; color:var(--text-muted)">${item.description || 'No description provided.'}</p>
-                <div style="background:rgba(255,255,255,0.05); padding:1.5rem; border-radius:12px; border-left: 4px solid var(--accent);">
-                    <p>📍 Location: <b>${item.location}</b></p>
-                    <p>👤 Reported by: <b>${item.contact_name || 'Anonymous'}</b></p>
-                    <p>📞 Phone: <a href="tel:${item.contact_phone}" style="color:var(--accent-light); text-decoration:none;"><b>${item.contact_phone}</b></a></p>
+                ${item.photo ? `<img src="${item.photo}" style="width:100%; border-radius:10px; margin-bottom:15px;">` : ''}
+                <h2 style="color:var(--accent)">${item.name}</h2>
+                <p>${item.description || 'No description'}</p>
+                <div style="background:rgba(255,255,255,0.05); padding:1rem; margin:1rem 0; border-radius:10px;">
+                    <p>📞 Phone: <b>${item.contact_phone}</b></p>
+                    <p>👤 Found By: <b>${item.contact_name}</b></p>
                 </div>
-                <button class="btn btn-primary" onclick="closeModal()">Back to Browse</button>
+                <button class="btn btn-primary" onclick="closeModal()">Close</button>
             `;
             document.getElementById('detailModal').style.display = 'flex';
         }
 
         function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
 
-        // --- AUTH LOGIC ---
+        // --- SUBMIT REPORT ---
+        document.getElementById('reportForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('name', document.getElementById('repName').value);
+            formData.append('type', document.getElementById('repType').value);
+            formData.append('description', document.getElementById('repDesc').value);
+            formData.append('location', document.getElementById('repLoc').value);
+            formData.append('contact_phone', document.getElementById('repPhone').value);
+            formData.append('contact_name', currentUser.userName); // Important: matches backend field
+
+            const photo = document.getElementById('repPhoto').files[0];
+            if(photo) formData.append('photo', photo);
+
+            try {
+                const res = await fetch(`${API_URL}/items`, {
+                    method: 'POST',
+                    headers: { 'Authorization': currentUser.token }, // Token required for Render backend
+                    body: formData
+                });
+                if(res.ok) { alert("Item Reported Successfully!"); showSection('browse'); }
+                else { alert("Error reporting item."); }
+            } catch (err) { console.error(err); }
+        };
+
+        // --- AUTH SUBMIT ---
         document.getElementById('authForm').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('authEmail').value;
             const password = document.getElementById('authPass').value;
             const name = document.getElementById('regName').value;
+            const endpoint = isLogin ? '/login' : '/register';
 
             try {
-                const endpoint = isLoginMode ? '/login' : '/register';
-                const body = isLoginMode ? { email, password } : { email, password, name };
-                
                 const res = await fetch(API_URL + endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify({ email, password, name })
                 });
-                
                 const data = await res.json();
-                if (res.ok) {
-                    if(isLoginMode) {
-                        localStorage.setItem('user', JSON.stringify(data));
-                        location.reload();
-                    } else {
-                        alert("Sign up successful! Please log in.");
-                        toggleAuthMode();
-                    }
-                } else { alert(data.error || "Authentication failed"); }
-            } catch (err) { alert("Server error. Try again later."); }
+                if(res.ok) {
+                    if(isLogin) { localStorage.setItem('user', JSON.stringify(data)); location.reload(); }
+                    else { alert("Account created! Now login."); toggleAuth(); }
+                } else { alert(data.error); }
+            } catch (err) { console.error(err); }
         };
 
         function updateUI() {
-            const authNavBtn = document.getElementById('authNavBtn');
-            const userDisplay = document.getElementById('userNameDisplay');
-            if (currentUser) {
-                authNavBtn.innerText = "Logout";
-                authNavBtn.onclick = () => { localStorage.removeItem('user'); location.reload(); };
-                userDisplay.innerText = `Hi, ${currentUser.userName}`;
+            if(currentUser) {
+                document.getElementById('userNameDisplay').innerText = `Hi, ${currentUser.userName}`;
+                document.getElementById('authNavBtn').innerText = "Logout";
+                document.getElementById('authNavBtn').onclick = () => { localStorage.removeItem('user'); location.reload(); };
             }
         }
     </script>
