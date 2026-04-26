@@ -9,7 +9,6 @@ const fs = require('fs');
 const app = express();
 const SECRET_KEY = "LOST_FIND_SECURE_KEY_2026"; 
 
-// --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
 
@@ -20,28 +19,18 @@ if (!fs.existsSync(uploadDir)){
 }
 app.use('/uploads', express.static('uploads'));
 
-// Mock Databases
+// Mock Databases (Resets when server restarts)
 let users = [];
 let items = [];
 
-// --- MULTER CONFIG ---
+// MULTER CONFIG
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, 'uploads/'),
     filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 const upload = multer({ storage });
 
-// --- ROUTES ---
-
-app.get('/', (req, res) => {
-    res.send(`
-        <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
-            <h1>LostFound Backend is Live!</h1>
-            <p>The server is running correctly. Connect via your GitHub frontend.</p>
-            <p style="color: #e91e63;"><b>Ready for API requests.</b></p>
-        </div>
-    `);
-});
+// --- AUTH ROUTES ---
 
 app.post('/api/register', async (req, res) => {
     const { name, email, password } = req.body;
@@ -65,6 +54,8 @@ app.post('/api/login', async (req, res) => {
     res.json({ token, userId: user.id, userName: user.name, email: user.email });
 });
 
+// --- ITEM ROUTES ---
+
 app.get('/api/items', (req, res) => res.json(items));
 
 app.post('/api/items', upload.single('photo'), (req, res) => {
@@ -73,10 +64,6 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
 
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
-        const protocol = req.protocol;
-        const host = req.get('host');
-        const imageUrl = req.file ? `${protocol}://${host}/uploads/${req.file.filename}` : null;
-
         const newItem = {
             id: Date.now(),
             userId: decoded.userId,
@@ -86,7 +73,7 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
             location: req.body.location,
             contact_phone: req.body.contact_phone,
             contact_name: req.body.contact_name,
-            photo: imageUrl
+            photo: req.file ? `http://localhost:3001/uploads/${req.file.filename}` : null
         };
         items.push(newItem);
         res.json(newItem);
@@ -103,8 +90,9 @@ app.delete('/api/items/:id', (req, res) => {
 
         if (itemIndex === -1) return res.status(404).json({ error: "Item not found" });
 
+        // Security check
         if (items[itemIndex].userId !== decoded.userId) {
-            return res.status(403).json({ error: "Forbidden" });
+            return res.status(403).json({ error: "Forbidden: You are not the owner" });
         }
 
         items.splice(itemIndex, 1);
@@ -112,9 +100,9 @@ app.delete('/api/items/:id', (req, res) => {
     } catch (err) { res.status(401).json({ error: "Auth failed" }); }
 });
 
-// --- SERVER START ---
-const PORT = process.env.PORT || 10000;
-
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(3001, () => {
+    console.log('-----------------------------------');
+    console.log('Server running on http://localhost:3001');
+    console.log('Press Ctrl + C to stop the server');
+    console.log('-----------------------------------');
 });
