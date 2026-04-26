@@ -249,10 +249,17 @@
 
     <script>
         // --- API CONFIGURATION ---
-       const API_URL = 'https://lostfoundweb.onrender.com/api';
+        const API_URL = 'https://lostfoundweb.onrender.com/api';
 
         let currentUser = JSON.parse(localStorage.getItem('user')) || null;
         let isLoginMode = true;
+
+        // NEW: Initial Connection Check
+        window.onload = () => {
+            updateUI();
+            loadItems(); // Automatically load items when page opens
+            console.log("Connecting to backend at:", API_URL);
+        };
 
         function showSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
@@ -338,8 +345,15 @@
             try {
                 const res = await fetch(`${API_URL}/items`);
                 const items = await res.json();
-                document.getElementById('itemsContainer').innerHTML = items.map(item => `
-                    <div class="item-card" onclick="openModal('${item._id}')">
+                const container = document.getElementById('itemsContainer');
+                
+                if (items.length === 0) {
+                    container.innerHTML = `<p style="text-align:center; width:100%; color:var(--text-muted);">No items reported yet.</p>`;
+                    return;
+                }
+
+                container.innerHTML = items.map(item => `
+                    <div class="item-card" onclick="openModal('${item.id || item._id}')">
                         <div class="item-image" style="background-image: url('${item.photo || ''}'); background-color:#222;"></div>
                         <div class="item-content">
                             <small style="color:var(--accent)">${item.type}</small>
@@ -355,7 +369,9 @@
             try {
                 const res = await fetch(`${API_URL}/items`);
                 const items = await res.json();
-                const item = items.find(i => i._id === id);
+                const item = items.find(i => (i.id || i._id) === id);
+                if(!item) return;
+
                 const isOwner = currentUser && item.userId === currentUser.userId;
 
                 document.getElementById('modalBody').innerHTML = `
@@ -367,7 +383,7 @@
                         <p>📞 Phone: <b>${item.contact_phone}</b></p>
                         <p>👤 Reported by: <b>${item.contact_name}</b></p>
                     </div>
-                    ${isOwner ? `<button class="btn btn-primary" style="margin-top:1rem; background:var(--success);" onclick="markAsClaimed('${item._id}')">Mark as Claimed</button>` : ''}
+                    ${isOwner ? `<button class="btn btn-primary" style="margin-top:1rem; background:var(--success);" onclick="markAsClaimed('${item.id || item._id}')">Mark as Claimed</button>` : ''}
                 `;
                 document.getElementById('detailModal').style.display = 'flex';
             } catch (err) { alert("Error opening item details."); }
@@ -386,8 +402,6 @@
                 else { alert("Unauthorized."); }
             } catch (err) { alert("Error deleting report."); }
         }
-
-        updateUI();
     </script>
 </body>
 </html>
