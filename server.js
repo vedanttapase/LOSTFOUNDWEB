@@ -80,7 +80,7 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
         
-        // Dynamic host detection for image URLs
+        // Dynamic host detection for image URLs (local vs render)
         const protocol = req.protocol;
         const host = req.get('host');
         const imageUrl = req.file ? `${protocol}://${host}/uploads/${req.file.filename}` : null;
@@ -122,7 +122,6 @@ app.delete('/api/items/:id', (req, res) => {
 });
 
 // --- SERVER START ---
-// Render assignments: dynamic PORT and 0.0.0.0 binding
 const PORT = process.env.PORT || 10000;
 
 app.listen(PORT, '0.0.0.0', () => {
