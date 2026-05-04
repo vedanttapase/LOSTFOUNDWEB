@@ -12,22 +12,16 @@ const SECRET_KEY = "LOST_FIND_SECURE_KEY_2026";
 app.use(cors());
 app.use(express.json());
 
-// Create uploads folder if it doesn't exist
-const uploadDir = './uploads';
-if (!fs.existsSync(uploadDir)){
-    fs.mkdirSync(uploadDir);
-}
-app.use('/uploads', express.static('uploads'));
+// --- VERCEL FIX: REMOVED MKDIR AND LOCAL STORAGE ---
+// Vercel does not allow writing to local folders like './uploads'
+// Files will now be handled in memory (RAM)
 
-// Mock Databases (Resets when server restarts)
+// --- MOCK DATABASES ---
 let users = [];
 let items = [];
 
-// MULTER CONFIG
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
+// --- MULTER CONFIG (Updated for Vercel) ---
+const storage = multer.memoryStorage(); // Store files in memory instead of disk
 const upload = multer({ storage });
 
 // --- AUTH ROUTES ---
@@ -64,6 +58,11 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
 
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
+        
+        // Since we are using MemoryStorage, req.file.buffer contains the file data.
+        // For a demo, we will use a placeholder or convert to Base64.
+        const photoData = req.file ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : null;
+
         const newItem = {
             id: Date.now(),
             userId: decoded.userId,
@@ -73,7 +72,7 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
             location: req.body.location,
             contact_phone: req.body.contact_phone,
             contact_name: req.body.contact_name,
-            photo: req.file ? `http://localhost:3001/uploads/${req.file.filename}` : null
+            photo: photoData // Changed from URL to Base64 String
         };
         items.push(newItem);
         res.json(newItem);
@@ -90,7 +89,6 @@ app.delete('/api/items/:id', (req, res) => {
 
         if (itemIndex === -1) return res.status(404).json({ error: "Item not found" });
 
-        // Security check
         if (items[itemIndex].userId !== decoded.userId) {
             return res.status(403).json({ error: "Forbidden: You are not the owner" });
         }
@@ -101,8 +99,5 @@ app.delete('/api/items/:id', (req, res) => {
 });
 
 app.listen(3001, () => {
-    console.log('-----------------------------------');
-    console.log('Server running on http://localhost:3001');
-    console.log('Press Ctrl + C to stop the server');
-    console.log('-----------------------------------');
+    console.log('Server running on port 3001');
 });
