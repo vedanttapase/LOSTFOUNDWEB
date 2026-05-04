@@ -9,17 +9,18 @@ const fs = require('fs');
 const app = express();
 const SECRET_KEY = "LOST_FIND_SECURE_KEY_2026"; 
 
-app.use(cors());fetch('http://localhost:3001/api/items')
+app.use(cors());
 app.use(express.json());
 
-// --- VERCEL FIX: SERVE STATIC FILES OR ROOT ROUTE ---
-// This prevents the "Cannot GET /" error
-app.get('/', (req, res) => {
-    res.send('Lost & Found Premium API is running!');
-});
+// --- FIX 1: SERVE STATIC FILES (CSS, JS, Images) ---
+// This must be ABOVE your routes so Vercel can find your frontend assets.
+app.use(express.static(path.join(__dirname, '.')));
 
-// If your frontend HTML/CSS is in the same folder, uncomment the line below:
-// app.use(express.static(path.join(__dirname, '.')));
+// --- FIX 2: SERVE INDEX.HTML AT ROOT ---
+// This replaces the "API is running" text with your actual website.
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // --- MOCK DATABASES ---
 let users = [];
