@@ -9,7 +9,7 @@ const fs = require('fs');
 const app = express();
 const SECRET_KEY = "LOST_FIND_SECURE_KEY_2026"; 
 
-app.use(cors());
+app.use(cors());fetch('http://localhost:3001/api/items')
 app.use(express.json());
 
 // --- VERCEL FIX: SERVE STATIC FILES OR ROOT ROUTE ---
