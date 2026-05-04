@@ -12,16 +12,21 @@ const SECRET_KEY = "LOST_FIND_SECURE_KEY_2026";
 app.use(cors());
 app.use(express.json());
 
-// --- VERCEL FIX: REMOVED MKDIR AND LOCAL STORAGE ---
-// Vercel does not allow writing to local folders like './uploads'
-// Files will now be handled in memory (RAM)
+// --- VERCEL FIX: SERVE STATIC FILES OR ROOT ROUTE ---
+// This prevents the "Cannot GET /" error
+app.get('/', (req, res) => {
+    res.send('Lost & Found Premium API is running!');
+});
+
+// If your frontend HTML/CSS is in the same folder, uncomment the line below:
+// app.use(express.static(path.join(__dirname, '.')));
 
 // --- MOCK DATABASES ---
 let users = [];
 let items = [];
 
-// --- MULTER CONFIG (Updated for Vercel) ---
-const storage = multer.memoryStorage(); // Store files in memory instead of disk
+// --- MULTER CONFIG ---
+const storage = multer.memoryStorage(); 
 const upload = multer({ storage });
 
 // --- AUTH ROUTES ---
@@ -58,9 +63,6 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
 
     try {
         const decoded = jwt.verify(token, SECRET_KEY);
-        
-        // Since we are using MemoryStorage, req.file.buffer contains the file data.
-        // For a demo, we will use a placeholder or convert to Base64.
         const photoData = req.file ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : null;
 
         const newItem = {
@@ -72,7 +74,7 @@ app.post('/api/items', upload.single('photo'), (req, res) => {
             location: req.body.location,
             contact_phone: req.body.contact_phone,
             contact_name: req.body.contact_name,
-            photo: photoData // Changed from URL to Base64 String
+            photo: photoData 
         };
         items.push(newItem);
         res.json(newItem);
@@ -98,6 +100,8 @@ app.delete('/api/items/:id', (req, res) => {
     } catch (err) { res.status(401).json({ error: "Auth failed" }); }
 });
 
-app.listen(3001, () => {
-    console.log('Server running on port 3001');
+// --- VERCEL PORT FIX ---
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
